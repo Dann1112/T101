@@ -76,3 +76,33 @@ module "db_vms" {
   vm_timezone            = "Central Standard Time"
   admin_password         = var.admin_password
 }
+
+##############
+# Data Disks #
+##############
+
+module "eu2_prd_web01_data_disk" {
+  source       = ".//vm_data_disk"
+  buildby      = var.buildby
+  buildticket  = "Ticket-Number"
+  environment  = var.environment
+  location     = var.location
+  disk_rsg     = ""
+  vm_name      = "${element(module.web_vms.vm_names, 0)}"
+  disk_type    = "Premium_LRS"
+  disk_size_gb = 50
+  disk_count   = 2
+}
+
+#########################
+# Data Disk Attachments #
+#########################
+
+module "eu2_prd_web01_data_disk_attach" {
+  source                    = ".//vm_data_disk_attachment"
+  disk_id                   = "${module.eu2_prd_web01_data_disk.data_disk_id}"
+  vm_id                     = "${element(module.web_vms.vm_ids, 0)}"
+  caching                   = ["None"]
+  write_accelerator_enabled = false
+  disk_count                = 2
+}
